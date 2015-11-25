@@ -20,7 +20,10 @@ example = ["900400026",
 
 generateBoard :: [String] -> Board
 generateBoard rawStrs = map (\ x -> createRow x) rawStrs
-    where createRow str = map (\ c -> createSquare c) str
+    where 
+          createRow :: String -> [Square]
+          createRow str = map (\ c -> createSquare c) str
+          createSquare :: Char -> Square
           createSquare c = 
               let n = read [c] :: Int
               in if n == 0
