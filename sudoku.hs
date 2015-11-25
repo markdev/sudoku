@@ -1,4 +1,4 @@
-data Square = Answer Int | Possible [Int] | Suggest Int
+data Square = Answer Int | Possible [Int] | Suggest Int deriving (Read, Show, Eq)
 type Board = [[Square]]
 
 main :: IO ()
@@ -19,7 +19,13 @@ example = ["900400026",
            "410009005"]
 
 generateBoard :: [String] -> Board
-generateBoard = undefined
+generateBoard rawStrs = map (\ x -> createRow x) rawStrs
+    where createRow str = map (\ c -> createSquare c) str
+          createSquare c = 
+              let n = read [c] :: Int
+              in if n == 0
+                 then Possible [1..9]
+                 else Answer n
 
 solveLoop :: Board -> (Bool, Board)
 solveLoop = undefined
