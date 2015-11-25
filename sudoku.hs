@@ -7,10 +7,18 @@ main = undefined
 getRowFromInput :: [String] -> IO ()
 getRowFromInput = undefined
 
-example :: [[Int]]
-example = undefined
+example :: [String]
+example = ["900400026",
+           "007020150",
+           "205010800",
+           "304600502",
+           "020000080",
+           "108007403",
+           "003040701",
+           "052060900",
+           "410009005"]
 
-generateBoard :: [[Int]] -> Board
+generateBoard :: [String] -> Board
 generateBoard = undefined
 
 solveLoop :: Board -> (Bool, Board)
