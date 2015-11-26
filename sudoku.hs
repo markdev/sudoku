@@ -33,22 +33,30 @@ generateBoard rawStrs = map (\ x -> createRow x) rawStrs
 solveLoop :: Board -> (Bool, Board)
 solveLoop = undefined
 -- these are part of solveLoop
-solveRow :: Board -> (Bool, Board)
+solveRow :: Board -> Board
 solveRow = undefined
 
-solveCol :: Board -> (Bool, Board)
+solveCol :: Board -> Board
 solveCol = undefined
 
-solveReg :: Board -> (Bool, Board)
+solveReg :: Board -> Board
 solveReg = undefined
 ---------------------
 
+
 checkForWin :: Board -> Bool
-checkForWin = undefined
+checkForWin board = foldl (\ acc x -> if isAnswer x then acc else False) True $ concat board
+    where
+          isAnswer :: Square -> Bool
+          isAnswer sq = case sq of Answer _ -> True
+                                   Possible _ -> False
+                                   Suggest _ -> True  -- right?  Need to verify this.
 
 generateSuggestionList :: Board -> [Board]
 generateSuggestionList = undefined
 
 displaySolution :: Board -> IO ()
 displaySolution = undefined
+
+
 
