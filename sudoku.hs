@@ -45,12 +45,11 @@ solveReg = undefined
 
 
 checkForWin :: Board -> Bool
-checkForWin board = foldl (\ acc x -> if isAnswer x then acc else False) True $ concat board
+checkForWin board = all isAnswer $ concat board
     where
           isAnswer :: Square -> Bool
-          isAnswer sq = case sq of Answer _ -> True
-                                   Possible _ -> False
-                                   Suggest _ -> True  -- right?  Need to verify this.
+          isAnswer (Answer _) = True
+          isAnswer _          = False
 
 generateSuggestionList :: Board -> [Board]
 generateSuggestionList = undefined
