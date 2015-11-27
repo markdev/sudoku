@@ -21,17 +21,6 @@ example = ["090014070",
            "005000006",
            "020150030"
            ]
-{-
-example = ["900400026",
-           "007020150",
-           "205010800",
-           "304600502",
-           "020000080",
-           "108007403",
-           "003040701",
-           "052060900",
-           "410009005"]
--}
 
 generateBoard :: [String] -> Board
 generateBoard rawStrs = map (\ x -> createRow x) rawStrs
@@ -45,18 +34,12 @@ generateBoard rawStrs = map (\ x -> createRow x) rawStrs
                  then Possible [1..9]
                  else Answer n
 
---solveLoop :: Board -> (Bool, Board)
---solveLoop board = (True, solveRow board)
--- these are part of solveLoop
---solveLoop :: Board -> IO ()
---solveLoop = if checkForWin (generate example)
---	where solve = solveReg . solveCol . solveRow
+solveLoop :: Board -> IO ()
 solveLoop board =
-	let process = solveRow . solveCol . solveReg
-	in if checkForWin (process board) 
-	   then process board 
-	   else solveLoop $ process board
-	-- if the board is solved, then display.  if not, do solveloop on the processed board
+    let processed = solveRow $ solveCol $ solveReg board
+    in if checkForWin processed 
+       then displaySolution processed
+       else solveLoop $ processed
 
 solveRow :: Board -> Board
 solveRow board = map consolidate board
@@ -83,17 +66,13 @@ myList = [[Answer 1, Answer 2, Answer 3, Answer 4, Answer 5, Answer 6, Answer 7,
 regionalize :: Board -> Board
 regionalize board = concat $ map regionalizeRow $ splitEvery 3 board
     where
-    	  regionalizeRow :: [[Square]] -> [[Square]]
-    	  regionalizeRow bigchunk = (first row) : (second row) : (third row) : []
-    	      where
-    	          first r = r!!0 ++ r!!3 ++ r!!6
-    	          second r = r!!1 ++ r!!4 ++ r!!7
-    	          third r = r!!2 ++ r!!5 ++ r!!8
-    	          row = concat $ map (splitEvery 3) bigchunk
--- divide the board into three row regions
--- let mysplit = concat $ map (splitEvery 3) myList
--- mysplit !! 0 ++ mysplit !! 3 ++ mysplit !! 6
--- concat the new rows
+         regionalizeRow :: [[Square]] -> [[Square]]
+         regionalizeRow bigchunk = (first row) : (second row) : (third row) : []
+             where
+                  first r = r!!0 ++ r!!3 ++ r!!6
+                  second r = r!!1 ++ r!!4 ++ r!!7
+                  third r = r!!2 ++ r!!5 ++ r!!8
+                  row = concat $ map (splitEvery 3) bigchunk
 
 deregionalize :: Board -> Board
 deregionalize = undefined
@@ -115,7 +94,6 @@ consolidate row =
           prune :: [Int] -> Square -> Square
           prune answers (Possible xs) = (Possible (filter (\ x -> not (x `elem` answers)) xs))
           prune answers (Answer x) = (Answer x)
----------------------
 
 checkForWin :: Board -> Bool
 checkForWin board = all isAnswer $ concat board
@@ -128,5 +106,15 @@ generateSuggestionList :: Board -> [Board]
 generateSuggestionList = undefined
 
 displaySolution :: Board -> IO ()
-displaySolution = undefined
+displaySolution board = do
+    mapM_ print $ makeBoardStrings board
+    
+makeBoardStrings :: Board -> [String]
+makeBoardStrings board = intercalate ["================="] $ splitEvery 3 $ map (intersperse '|' . stringify) board
+    where
+        stringify :: [Square] -> String
+        stringify [] = []
+        stringify [(Answer x)] = (show x :: String)
+        stringify ((Answer x):xs) = (show x :: String) ++ stringify xs
+    
 
