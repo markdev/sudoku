@@ -13,6 +13,13 @@ seed = ["090014070",
         "020150030"
        ]
 
+charSwap :: [String] -> Int -> Int -> [String]
+charSwap [] _ _ = []
+charSwap (x:xs) a b = 
+   let a' = head $ show a
+       b' = head $ show b
+   in (map (\ c -> if c == a' then b' else if c == b' then a' else c) x) : charSwap xs a b
+
 colSwap :: [String] -> Int -> Int -> [String]
 colSwap board a b =
 	let tBoard = transpose board
