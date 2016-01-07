@@ -36,10 +36,10 @@ swapLoop (x:xs) a b ath bth
    | length xs == 8 - b = ath : swapLoop xs a b ath bth
    | otherwise          = x   : swapLoop xs a b ath bth
 
-generateBoard :: [String] -> Int -> [String]
-generateBoard seed n = genBoardLoop seed n (randomFunctions n 374657826458726) (randomParams (2 * n) 7829482375982)
+generateBoard' :: [String] -> Int -> [String]
+generateBoard' seed n = genBoardLoop seed n (randomFunctions n 374657826458726) (randomParams (2 * n) 7829482375982)
 
-
+genBoardLoop :: [String] -> Int -> [Int] -> [Int] -> [String]
 genBoardLoop board n _ [] = board
 genBoardLoop board n [] _ = board
 genBoardLoop board n (f:fs) (p:p':ps)
