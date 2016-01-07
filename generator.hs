@@ -1,5 +1,6 @@
 -- board generator
 import Data.List
+import System.Random
 
 seed :: [String]
 seed = ["090014070",
@@ -34,3 +35,21 @@ swapLoop (x:xs) a b ath bth
    | length xs == 8 - a = bth : swapLoop xs a b ath bth
    | length xs == 8 - b = ath : swapLoop xs a b ath bth
    | otherwise          = x   : swapLoop xs a b ath bth
+
+generateBoard :: [String] -> Int -> [String]
+generateBoard seed n = genBoardLoop seed n (randomFunctions n 374657826458726) (randomParams (2 * n) 7829482375982)
+
+
+genBoardLoop board n _ [] = board
+genBoardLoop board n [] _ = board
+genBoardLoop board n (f:fs) (p:p':ps)
+   | f == 1    = genBoardLoop (colSwap board (p - 1) (p' - 1)) n fs ps 
+   | f == 2    = genBoardLoop (rowSwap board (p - 1) (p' - 1)) n fs ps 
+   | otherwise = genBoardLoop (charSwap board p p') n fs ps 
+
+randomParams :: Int -> Int -> [Int]
+randomParams n seed' = take n . randomRs (1, 9) . mkStdGen $ seed'
+
+randomFunctions :: Int -> Int -> [Int]
+randomFunctions n seed' = take n . randomRs (1, 3) . mkStdGen $ seed'
+
