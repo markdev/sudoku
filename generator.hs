@@ -44,10 +44,10 @@ swapLoop (x:xs) a b ath bth
 diagonalSwap :: Sudoku -> Sudoku
 diagonalSwap [] = []
 diagonalSwap xs = foldl1 (zipWith (++)) $ map rowToCol xs
-
-rowToCol :: String -> [String]
-rowToCol [] = []
-rowToCol (x:xs) = [x]:(rowToCol xs)
+    where 
+        rowToCol :: String -> [String]
+        rowToCol [] = []
+        rowToCol (x:xs) = [x]:(rowToCol xs)
 
 generateBoard' :: Sudoku -> Int -> Sudoku
 generateBoard' seed n = genBoardLoop seed n (randomFunctions n 374657826458726) (randomParams (2 * n) 7829482375982)
