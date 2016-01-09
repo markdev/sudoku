@@ -4,24 +4,88 @@ import Generator
 
 data Square = Answer Int | Possible [Int] | Suggest Int deriving (Read, Show, Eq)
 type Board = [[Square]]
+type RowIndex = Int
 
 main :: IO ()
-main = undefined
+main = do
+  putStrLn openingText
+  mainMenu
 
-getRowFromInput :: [String] -> IO ()
-getRowFromInput = undefined
+openingText :: String
+openingText = "Welcome to my amazing Sudoku machine!\n"
 
-example :: [String]
-example = ["090014070",
-           "100000400",
-           "850073290",
-           "070040000",
-           "340080065",
-           "000020040",
-           "039260017",
-           "005000006",
-           "020150030"
-           ]
+mainMenu :: IO ()
+mainMenu = do
+  putStrLn ("What do you want to do?\n" ++ "Enter 1 to enter a sudoku\n" ++ "Enter 2 to generate one automatically\n")
+  choice <- getLine
+  case choice of 
+    "1" -> enterSudoku
+    "2" -> generateSudoku 
+    otherwise -> do
+      putStrLn "That is not a valid response"
+      mainMenu
+
+
+-- Option 1: enter sudoku
+enterSudoku :: IO ()
+enterSudoku = do
+  putStrLn "I'm going to prompt you to enter the sudoku row by row.  Don't you just love command lines?"
+  putStrLn "Starting from row 1, enter a nine-digit number, substituting \"0\" for an unsolved square."
+  putStrLn "Example: \"||  | 2 |  || 7 |   | 9 || 3 |  |  ||\" would be entered as \"020709300\""
+  putStrLn "Capisce?  Good."
+  enterRow 0 [[]]
+
+enterRow :: RowIndex -> [String] -> IO ()
+enterRow i board
+  | i >= 9 = solveScreen $ tail board
+  | otherwise = do
+    putStrLn ("Enter a nine-digit number for row " ++ (show (i + 1)) ++ ": ")
+    rowString <- getLine
+    if isValidRow rowString then
+      enterRow (i + 1) (board ++ [rowString])
+    else do
+      putStrLn "That is not a valid row, try again."
+      enterRow i board
+
+isValidRow :: String -> Bool
+isValidRow xs = (all (`elem` ['0'..'9']) xs) && (length xs == 9)
+
+
+-- Option 2: generate sudoku
+generateSudoku :: IO ()
+generateSudoku = do
+  putStrLn "Enter some big random number, like 238764867 (yes, really)"
+  hash <- getLine
+  if isANumber hash then
+    solveScreen (makeRandomBoard seed 200 (read hash :: Int))
+  else do
+    putStrLn "That is not a good number."
+    generateSudoku
+
+isANumber :: String -> Bool
+isANumber xs = all (`elem` ['0'..'9']) xs
+
+
+-- Display the sudoku
+solveScreen :: [String] -> IO ()
+solveScreen rows = do
+  putStrLn $ displayUnsolved rows 
+  putStrLn "Okay, are you ready to solve this thing? (Press enter)"
+  ready <- getLine
+  solve $ generateBoard rows 
+
+displayUnsolved :: [String] -> String
+displayUnsolved rows = concat $ intercalate ["---------------------\n"] $ chunksOf 3 $ map rowify rows
+  where
+    rowify xs = (intersperse ' ' $ intercalate "|" $ chunksOf 3 xs) ++ "\n" 
+
+
+-- Solve this thing 
+solve :: Board -> IO ()
+solve board = do
+  solveLoop board
+
+
 
 generateBoard :: [String] -> Board
 generateBoard rawStrs = map (\ x -> createRow x) rawStrs
@@ -52,7 +116,7 @@ solveReg :: Board -> Board
 solveReg board = regionalize $ map consolidate $ regionalize board
 
 regionalize :: Board -> Board
-regionalize board = concat $ map regionalizeRow $ splitEvery 3 board
+regionalize board = concat $ map regionalizeRow $ chunksOf 3 board
     where
          regionalizeRow :: [[Square]] -> [[Square]]
          regionalizeRow bigchunk = (first row) : (second row) : (third row) : []
@@ -60,7 +124,7 @@ regionalize board = concat $ map regionalizeRow $ splitEvery 3 board
                   first r = r!!0 ++ r!!3 ++ r!!6
                   second r = r!!1 ++ r!!4 ++ r!!7
                   third r = r!!2 ++ r!!5 ++ r!!8
-                  row = concat $ map (splitEvery 3) bigchunk
+                  row = concat $ map (chunksOf 3) bigchunk
 
 deregionalize :: Board -> Board
 deregionalize = undefined
@@ -98,7 +162,7 @@ displaySolution board = do
     mapM_ print $ makeBoardStrings board
     
 makeBoardStrings :: Board -> [String]
-makeBoardStrings board = intercalate ["================="] $ splitEvery 3 $ map (intersperse '|' . stringify) board
+makeBoardStrings board = intercalate ["================="] $ chunksOf 3 $ map (intersperse '|' . stringify) board
     where
         stringify :: [Square] -> String
         stringify [] = []
